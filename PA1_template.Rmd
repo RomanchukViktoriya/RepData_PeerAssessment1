@@ -48,23 +48,31 @@ fivemin_interval <- steps_by_interval[which.max(steps_by_interval$steps),1]
 Here one should calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs), advise a strategy for filling in all of the missing values in the dataset.One should create a new dataset that is equal to the original dataset but with the missing data filled in and ,ake a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Also it needs to be checked if these values differ from the estimates from the first part of the assignment? and what is the impact of imputing missing data on the estimates of the total daily number of steps?
 
 ```{r}
+# f interval 10 was missing on 10-02-2012, the average for that interval for all days (0.1320755), replaced the NA.
 incomplete <- sum(!complete.cases(data))
 imputed_data <- transform(data, steps = ifelse(is.na(data$steps), steps_by_interval$steps[match(data$interval, steps_by_interval$interval)], data$steps))
+
+# Zeroes were imputed for 10-01-2012 because it was the first day and would have been over 9,000 steps higher than the following day, which had only 126 steps. NAs then were assumed to be zeros to fit the rising trend of the data.
+
 imputed_data[as.character(imputed_data$date) == "2012-10-01", 1] <- 0
-{r}
+
+# Recount total steps by day and create Histogram.
 steps_by_day_i <- aggregate(steps ~ date, imputed_data, sum)
 hist(steps_by_day_i$steps, main = paste("Total Steps Each Day"), col="blue", xlab="Number of Steps")
 
-#Create Histogram to show difference. 
+# Create Histogram to show difference. 
 hist(steps_by_day$steps, main = paste("Total Steps Each Day"), col="red", xlab="Number of Steps", add=T)
 legend("topright", c("Imputed", "Non-imputed"), col=c("blue", "red"), lwd=10)
 
+# Calculate new mean and median for imputed data.
 rmean.i <- mean(steps_by_day_i$steps)
 rmedian.i <- median(steps_by_day_i$steps)
 
+# Calculate difference between imputed and non-imputed data.
 mean_diff <- rmean.i - rmean
 med_diff <- rmedian.i - rmedian
 
+# Calculate total difference.
 total_diff <- sum(steps_by_day_i$steps) - sum(steps_by_day$steps)
 ```
 ## Are there differences in activity patterns between weekdays and weekends?
